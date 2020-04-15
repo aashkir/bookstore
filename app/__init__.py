@@ -34,10 +34,18 @@ def create_app(test_config=None):
 
     # owner panel
 
-    # bookstore page
+    # bookstore page (displays all books)
+    from . import bookstore
+    app.register_blueprint(bookstore.bp)
+    app.add_url_rule('/', endpoint='index')
 
-    # order tracking area
+    # track an order
 
-    # 
+    # book CRUD
+     # add a book
+     # remove a book
+     # update a book
+     # delete a book
+
 
     return app

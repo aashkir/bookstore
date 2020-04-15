@@ -63,11 +63,17 @@ def login():
 
         if user is None:
             error = 'Incorrect username.'
-
+        
         if error is None:
+            # check if username appears in the owner table, if so, redirect to reports
             session.clear()
+            # if the user is also an owner, add it to the session so they can access the reports page
+            if db.execute('SELECT id FROM owner WHERE id = ?', (user['id'],)).fetchone() is not None:
+                session['is_owner'] = True
+            else:
+                session['is_owner'] = False
             session['user_id'] = user['id'] # stored in browser cookie, allows access to other parts of website
-            return redirect(url_for('index')) # TODO: if owner go to control panel, else go to store
+            return redirect(url_for('index'))
 
         flash(error)
 
@@ -76,13 +82,18 @@ def login():
 @bp.before_app_request
 def load_logged_in_user():
     user_id = session.get('user_id')
+    is_owner = session.get('is_owner')
 
     if user_id is None:
         g.user = None
+        g.is_owner = None
     else:
         g.user = get_db().execute(
             'SELECT * FROM user WHERE id = ?', (user_id,)
         ).fetchone()
+
+        if get_db().execute('SELECT id FROM owner WHERE id = ?', (user_id,)).fetchone() is not None:
+            g.is_owner = True
 
 @bp.route('/logout')
 def logout():
@@ -99,3 +110,14 @@ def login_required(view):
         return view(**kwargs)
 
     return wrapped_view
+'''
+# used for admin access only
+def admin_required(view):
+    @functools.wraps(view)
+    def wrapped_view(**kwargs):
+        if g.user is None and not g.is_owner:
+            return redirect(url_for('auth.login'))
+
+        return view(**kwargs)
+
+    return wrapped_view'''

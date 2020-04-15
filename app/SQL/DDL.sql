@@ -2,6 +2,7 @@ drop table if exists user;
 drop table if exists owner;
 drop table if exists customer;
 drop table if exists orders;
+drop table if exists genre;
 drop table if exists book;
 drop table if exists publisher;
 drop table if exists banking_account;
@@ -10,6 +11,7 @@ drop table if exists warehouse;
 drop table if exists phone_number;
 drop table if exists joins;
 drop table if exists book_publisher;
+drop table if exists book_genre;
 drop table if exists stocks;
 drop table if exists writes;
 drop table if exists warehouse_phone;
@@ -44,11 +46,14 @@ create table orders (
 );
 
 create table book (
-    ISBN integer primary key autoincrement,
+    ISBN integer primary key,
     title text,
-    genre text,
     num_pages integer,
     price real
+);
+
+create table genre (
+    genre text primary key
 );
 
 create table publisher (
@@ -95,7 +100,15 @@ create table book_publisher (
     publishers_cut real,
     foreign key (ISBN) references book (ISBN),
     foreign key (name) references publisher (name),
-    primary key (name, ISBN)
+    primary key (ISBN)
+);
+
+create table book_genre (
+    genre text not null,
+    ISBN integer not null,
+    foreign key (ISBN) references book (ISBN),
+    foreign key (genre) references genre (genre)
+    primary key (genre, ISBN)
 );
 
 create table stocks (
@@ -104,7 +117,7 @@ create table stocks (
     number_books integer,
     foreign key (hub_number) references warehouse (hub_number),
     foreign key (ISBN) references book (ISBN),
-    primary key (hub_number, ISBN)
+    primary key (ISBN)
 );
 
 create table writes (
@@ -135,5 +148,4 @@ create table publisher_phone (
     foreign key (phone_number) references phone_number (phone_number),
     foreign key (name) references publisher (name)
 )
-
 
